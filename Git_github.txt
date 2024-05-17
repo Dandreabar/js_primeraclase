@@ -1,0 +1,4 @@
+0,06582278
+
+debes situarte en la carpeta de trabaja a travez de la consola
+git init (crear repositorio dentro de la carpeta)
