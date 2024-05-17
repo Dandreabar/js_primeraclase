@@ -24,5 +24,20 @@ esta funcion lo que hace es dejar desde el ID que estoy mensionando hacia ade
 lante todos los cambios que hice y elimina los id que estan hacia atras de este
 ID
 
+Crear Ramas nuevas:
+para poder hacer cambios y probar y luego pasar a la principal 
+
+para ello debemos crear una rama
+
+git branch rama-pruebas
+git status para ver (estamos siempre situados en la Master)
+
+con el comando
+git branch -l se listan todas las ramas del proyecto
+
+con el comando "git checkout rama-nueva"
+
+git branch -l 
+
 
 
