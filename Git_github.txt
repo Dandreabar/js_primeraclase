@@ -2,3 +2,10 @@
 
 debes situarte en la carpeta de trabaja a travez de la consola
 git init (crear repositorio dentro de la carpeta)
+git status nos define el estado de nuestros archivos en el proyecto 
+para gid 
+Si dice Untracked files significa que nuestros archivos estan en el area de trabajo 
+pero no han sido pasados al estado intermedio de trabajo.
+
+Con "Git add ." : pasamos a el area "staging area" todos los archivos 
+
