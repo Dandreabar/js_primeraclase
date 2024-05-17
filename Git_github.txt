@@ -12,3 +12,17 @@ Con "Git add ." : pasamos a el area "staging area" todos los archivos
 luego "Git commit -m "Estado inicial de nuestro Proyecto"
 se debe hacer un git log --oneline
 
+Se debe guardar por precaucion 
+el indice del proyecto 
+que es el anterior  para poder volver atras si es que necesito
+cuando se realiza la funcion de eliminar alguno de 
+ellos
+
+id: 2925521
+para eliminar utilice git reset -hard "id" 
+esta funcion lo que hace es dejar desde el ID que estoy mensionando hacia ade
+lante todos los cambios que hice y elimina los id que estan hacia atras de este
+ID
+
+
+
