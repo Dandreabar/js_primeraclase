@@ -9,3 +9,6 @@ pero no han sido pasados al estado intermedio de trabajo.
 
 Con "Git add ." : pasamos a el area "staging area" todos los archivos 
 
+luego "Git commit -m "Estado inicial de nuestro Proyecto"
+se debe hacer un git log --oneline
+
