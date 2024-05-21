@@ -1,0 +1,20 @@
+
+luego de haber aplicado cambios en la rama de pruebas o cualquiera que esta sea
+en donde queremos aplicar los cambios de la rama
+y entonces desde alli podemos trabajar
+ para incorporarlos los cambios se debe realizar el siguiente comando:
+
+git merge "nombre de la rama que deseo cargar a la que estoy situado"
+
+---------------------
+este es el trabajo de git para versionar y mantener distintos cambios dentro
+de un proyecto que no interfiera y no pise los ultimos cambios que podemos
+tener de nuestros archivos sin pisar unos con otros.
+todo estos procesos se hicieron en forma Remota:
+-----------------------------------------------------------------------
+Ahora trabajando con Gihub (parte remota)
+
+
+
+
+ 

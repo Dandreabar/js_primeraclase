@@ -57,7 +57,7 @@ let numUsuario=prompt("Ingrese un numero");
 console.log("El numero ingresado por el usuario es", numUsuario)
 // verificar el conversor para transformar un string a numero y lo pueda utilizar el 
 // javascrip
-let resultado= numUsuario + 44;
+let resultado= parseInt(numUsuario) + 44;
 
 console.log("El resultado de la suma es", resultado)
 
