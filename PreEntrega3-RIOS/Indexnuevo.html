@@ -1,0 +1,1061 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="es-ES">
+<head> 
+	<title>Simulador de Pensiones</title> 
+	<meta http-equiv="content-type" content="text/html;charset=iso-8859-1" /> 
+	<meta http-equiv="pragma" content="no-cache">
+    	<meta http-equiv="expires" content="-1" />
+	<meta http-equiv="Last-Modified" content="0">
+	
+	<!-- CSS -->
+	<link type="text/css" href="css/ui/jquery-ui-1.8.10.custom.css" rel="stylesheet" />
+	<link rel="stylesheet" href="css/reset-fonts-common.min.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="css/base.css" type="text/css" media="screen" />
+	
+	<!-- Javascripts -->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.10.custom.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-fix.js"></script>
+	<script type="text/javascript" src="js/jquery.blockUI.js?2.38"></script>
+    <script type="text/javascript" src="js/funciones_varias_ori.js?20240702200750"></script>
+	<script type="text/javascript" src="js/pensiones_ori.js?20240702200750"></script>	
+    <script type="text/javascript" src="js/calcular_pension_ori.js?20240702200750"></script>
+	
+	<script type="text/javascript"> 
+		/* PNG Transparency for IE6 */
+	    $(document).ready(function(){ 
+			
+			// Variable para generar los controles de forma automatica, de lo contrario dejar en false
+			window.generarControlesAutomaticamente = true;
+			
+	        new generarInputsBasico('m', '').iniciar();			
+			new accionesModuloJubilacion().iniciar();
+			
+			// Nuevo usuario
+			$("#tabla-datos-personas, #editar-informacion").addClass('hide');
+			$("#tabla-datos-personas-editar").removeClass('hide');
+			// para lograr el efecto sobre los botones ui.icons
+			$("#icons li")
+				.mouseenter(function() {
+					$(this).addClass('ui-state-hover');
+				})
+				.mouseleave(function() {
+					$(this).removeClass("ui-state-hover");
+				});
+			obtiene_tope_imponible();// obtencion de tope imponible
+			obtiene_tope_apv();// obtencion de tope apv
+			obtiene_uf_actual();// obtiene valor de uf actual
+			//despliega_uf_dia(); // muestra uf en pantalla
+			despliega_info_afiliado();
+			actualizar_inputs_tramos();
+	    });
+	// funcion que despliega datos del afiliado, posterior a inicializacion del formulario
+	function despliega_info_afiliado(){
+		//alert("llamada funcion despliega_info_afiliado");
+		$("#nombre-persona").val("DOMINIQUE ANDREA RIOS BARAHONA");
+		$("#inputEdadPersona").val("52");
+		valida_edad_fondo();
+		actualizar_inputs_tramos();
+		var sexoAfiliado = "F";
+		if(sexoAfiliado == "F") $("#sexo_femenino").attr("checked",true);
+		else $("#sexo_masculino").attr("checked",true);
+		$("#saldoActual").val("26967655");
+		$("#bono_reconocimiento").val("0");
+		$("#remuneracion").val("0"); // verifica_tope_imponible();
+		$("#regularidad").val("0"); 
+		$("#fondo option[value='E']").attr("selected",true);
+		 valida_fondo_edad($("#fondo"));
+		$("#saldo_actual_apv").val("0");
+		$("#saldo_actual_deposito_convenido").val("0");
+		$("#saldo_actual_cuenta_dos").val("0");
+		var afifondoact2 = "";
+		if(afifondoact2 != "" && afifondoact2 != "-"){
+			$("#cancelar_fondo_actual, #fondo_valor_uno, #fondo_dos, #fondo_valor_dos, .tabla-fondos th:eq(1), .tabla-fondos th:eq(2), .tabla-fondos th:eq(3)").show();
+			$("#agregar_segundo_fondo").hide();
+			$.data($("#fondo_dos"), 'hide', true);
+			$("#fondo option[value='E']").attr("selected",true);
+			$("#fondo_dos option[value='']").attr("selected",true);
+		}
+	}
+	</script>
+	
+	<!--[if IE 6]>
+	<style type="text/css">.png_transparent { behavior: url(css/iepngfix.htc); }</style>
+	<link rel="stylesheet" href="css/ie6.css" type="text/css" media="screen" />
+	<script type="text/javascript">
+	$(document).ready(function(){ 
+		$(window).scroll(function() {
+			$("#footer_sticky").css("top", ($(window).scrollTop() + $(window).height() - 82) + "px");
+		});
+	});
+	</script>
+	<![endif]-->
+<style type="text/css">
+	ul#icons li {
+		cursor: pointer;
+		float: left;
+		/*float:right;*/
+		list-style: none outside none;
+		margin: 2px;
+		padding: 4px;
+		/*position: relative;*/
+	}
+</style>	
+</head> 
+ 
+<body class="simulador">
+    <div id="calcular_pension"></div>
+	<!-- contenedor -->
+	<div id="contenedor">
+		<!-- banner -->
+		<div id="banner">
+			<ul>
+				<li>Bienvenido<span>|</span></li>
+			    <li><a href="https://www.spensiones.cl/apps/tramitesSP/miportal-SP.php?sessionid=cDlENXpUc3lFb0dLTDdrd2YvcythQ0ZRYVJObmFqVVNxVzFvbzFwZEF2d29FdFAzd3VkNnl3VnMzcHpzSXBCb0VMSmZmZlpnWHlxSnVrRXl5T3F3ZTFVUGJjVEl0MzBkUnFlTko4TmhEcTAzSnVubGxubWhMMzFGSnVtV2tqdnJIZ1ErNHp2S0RnNnI4WEREOWZDU1NLQjROQzhYckg4cm9ITno1cHgwMSsrTDNIbDh5MHAzb08xVzZ6UWE3UzRycm9Lb1NEN0pabFloalRDZXdQTGFwc2l1OThGTXpzd016aThGK3ZneUMyc2dZa3VqK1Z3MjlXM2NHcHppSU92dU9SYm40RTBTNWRNWEFWRlhkYnAyb2I4Wkg3RHJad21VRTQwWVl2UkFWQWh2RDA4NWJ1THF5S0hEcEdvY2dSbTVkb1FnWGlWOVdZaz0=&app=0_0">Volver a Mi Portal SP</a></li>
+			</ul>
+		</div>
+		<!-- /banner -->
+	
+		<a href="/" title="Ir a la portada"><img class="logo png_transparent" src="img/logo/superintendencia-chile-pequeno.png" alt="Superintendencia de Pensiones" width="94" height="44" /></a>
+		<h1>Simulador de pensiones</h1><div id="doctos_ayuda" style="position:relative; float:right"><a href="doc/glosario_simulador.pdf" target="_blank">Glosario</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="doc/supuestos_simulador.pdf" target="_blank">Supuestos Simulador</a></div><br /><div id="despliega_uf" style="position:relative; float:right"></div>
+		
+		<!-- box -->
+		<div id="box-alerta" class="cf box">
+			<!-- alerta -->
+			<div class="alerta">
+				<div class="cerrar"><a href="javascript:void(0)" title="Cerrar">Cerrar</a></div>
+				<h2>Para tener en cuenta al usar el simulador</h2>
+				<p>Los datos personales que ingrese a la simulaci&oacute;n son confidenciales y ser&aacute;n usados s&oacute;lo para esta sesi&oacute;n, sin ser compartidos con terceros. Es importante tener en cuenta que los resultados de este ejercicio son una simulaci&oacute;n, por lo que pueden diferir del valor efectivo de su pensi&oacute;n, ya que hay distintos factores que pueden hacer variar dicho monto. Por ejemplo: la rentabilidad de los fondos de pensiones; la oportunidad, frecuencia y monto de las cotizaciones; y las expectativas de vida. Por lo tanto, los resultados de este simulador no constituyen una garant&iacute;a por parte de la Superintendencia de Pensiones.</p>
+			</div>
+			<!-- /alerta -->
+		</div>
+		<!-- /box -->		
+		
+
+		<!-- editar-informacion -->
+		<div id="editar-informacion" class="cf">
+			<a href="javascript:void(0)">Cambiar informaci&oacute;n</a>
+		</div>
+		<!-- /editar-informacion-->
+		
+		<!-- tabla-datos-persona-editar -->
+	        <input type="hidden" name="nro_calculos" id="nro_calculos" value="0" />
+        <input type="hidden" name="tope_imponible" id="tope_imponible" value="" />
+        <input type="hidden" name="tope_apv" id="tope_apv" value="" />
+        <input type="hidden" name="valor_uf" id="valor_uf" value="" />
+        <input type="hidden" name="tasa_vigente" id="tasa_vigente" value="3.32" />
+        <input type="hidden" name="aniosParaJubilar" id="aniosParaJubilar" value="" />
+        <input type="hidden" name="afiliadoExiste" value="S" id="afiliadoExiste" />
+        <input type="hidden" name="datosPrellenados" value="DOMINIQUE ANDREA RIOS BARAHONA#52#F#26967655#0#0#0#E#100##0#0#0#0#" id="datosPrellenados" />
+		<table id="tabla-datos-personas-editar" class="tabla-datos-persona cf hide">
+			<tbody>
+            <tr>
+            	<td colspan="4"><h2>Datos Personales y Cuenta Obligatoria</h2></td>
+            </tr>
+			<tr>
+				<!-- Nombre -->
+				<td class="no-border-left">
+					<span class="header">Nombre (opcional)</span>
+					<input id="nombre-persona" type="text" name="nombre" class="input-text-largo" value="" /><br />
+                    Correo Electr&oacute;nico (opcional)
+                    <!-- Tooltip -->
+						 <a href="#tooltip_email" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_email" class="hide">Al ingresar su correo electrónico usted podrá recibir un email con el resultado de su simulaci&oacute;n. </div>
+					<input id="email-persona" type="text" name="email-persona" class="input-text-largo" value="" />
+				</td>
+				<!-- Edad -->
+				<td>
+					<div class="header">Edad actual
+						<!-- Tooltip -->
+						 <a href="#tooltip_edad" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_edad" class="hide">
+Con su edad actual podemos saber cu&aacute;ntos a&ntilde;os le quedan para pensionarse. Si le quedan m&aacute;s de 5 a&ntilde;os para su edad de jubilaci&oacute;n el simulador le entregar&aacute; una pensi&oacute;n esperada adem&aacute;s de una pensi&oacute;n en un escenario optimista y otra en un escenario pesimista; en caso contrario solo le entregar&aacute; una pensi&oacute;n esperada en el escenario de rentabilidad promedio.
+</div>
+						<!-- /Tooltip -->
+					</div>
+					<input value="52" id="inputEdadPersona" type="text" name="edad" class="input-text-pequeno" onblur="javascript:ValNumero(this,0);valida_edad_fondo();actualizar_inputs_tramos();"  maxlength="3" />
+				</td>				
+				<!-- Sexo -->
+				<td>
+					<div class="header">
+						Sexo
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_sexo" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_sexo" class="hide">&Uacute;til para conocer su edad de jubilaci&oacute;n legal (difiere para hombres y mujeres) y su esperanza de vida.</div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<input id="sexo_masculino" type="radio" name="sexo" value="m" onclick="javascript:actualizar_inputs_tramos();ValNumero(document.getElementById('inputEdadPersona'),0);actualizar_inputs_tramos();" /> <label for="sexo_masculino">Masculino</label>
+					<br />
+					<input id="sexo_femenino" type="radio" name="sexo" value="f" onclick="javascript:actualizar_inputs_tramos();ValNumero(document.getElementById('inputEdadPersona'),0);actualizar_inputs_tramos();"/> <label for="sexo_femenino">Femenino</label>
+				</td>
+				<!-- Saldo actual individual -->
+				<td>
+					<div class="header">
+						Ahorro acumulado <br />en cuenta obligatoria
+							
+						<!-- Tooltip -->
+						 <a href="#tooltip_saldo_actual_individual" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_saldo_actual_individual" class="hide">Corresponde al monto actual acumulado a trav&eacute;s de sus cotizaciones obligatorias, sin considerar ahorro voluntario. A partir de este saldo, junto a otros factores, se proyecta c&oacute;mo evolucionar&aacute; su cuenta individual hasta jubilarse.</div>
+						<!-- /Tooltip -->
+												
+					</div>
+					<input id="saldoActual" type="text" name="saldo" class="input-text-pequeno" value="" />
+					<select id="saldo-moneda" class="input-select" name="saldo_moneda">
+						<option value="$">Pesos</option>
+						<option value="UF">UF</option>
+					</select>
+                                        <br /> 
+                                        <br /> 
+                                        <div class="header">
+                                                Bono de Reconocimiento
+
+                                                <!-- Tooltip -->
+                                                 <a href="#tooltip_bono_reconocimiento" class="ayuda"><span>Ayuda</span></a>
+                                                 <div id="tooltip_bono_reconocimiento" class="hide"> Corresponde al valor actualizado del Bono de Reconocimiento. Este bono es emitido por el Estado y representa los per&iacute;odos de cotizaciones que usted registra en el antiguo r&eacute;gimen previsional. El bono ser&aacute; ingresado a su cuenta individual cuando se pensione por vejez, por invalidez o en caso de fallecimiento.</div>
+                                                <!-- /Tooltip -->
+
+                                        </div>
+                                        <input id="bono_reconocimiento" type="text" name="saldo" class="input-text-pequeno" value="" />
+                                        <select id="bono_reconocimiento-moneda" class="input-select" name="bono_reconocimiento-moneda">
+                                                <option value="$">Pesos</option>
+                                                <option value="UF">UF</option>
+                                        </select>                                        
+
+
+				</td>
+			</tr>
+			<tr>
+				<!-- Remuneracion mensual imponible -->
+
+				<td class="align-top no-border-left no-border-bottom">
+					<div class="header">
+						Remuneraci&oacute;n mensual imponible
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_remuneracion_mensual_imponible" class="ayuda"><span>Ayuda</span></a>
+                                                  <div id="tooltip_remuneracion_mensual_imponible" class="hide">Corresponde a la Remuneraci&oacute;n Imponible promedio de las &uacute;ltimas 6 cotizaciones registradas. Las cotizaciones obligatorias son un 10% de su remuneraci&oacute;n mensual imponible (con un l&iacute;mite de XXX UF) y son el principal factor con el que los trabajadores construyen su pensi&oacute;n. Para mejorar su pensi&oacute;n puede considerar otros factores como APV individual o colectivo, dep&oacute;sitos convenidos y dep&oacute;sitos en cuenta 2.</div>
+                                                  <div id="tooltip_remuneracion_excede_imponible" class="hide"></div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<input id="remuneracion" type="text" name="remuneracion" class="input-text-pequeno" value="" onblur="javascript:verifica_tope_imponible();" />
+					<select id="remuneracion_moneda" class="input-select" name="remuneracion_tipo" onchange="javascript:verifica_tope_imponible();">
+						<option value="$">Pesos</option>
+						<option value="UF">UF</option>
+					</select>
+				<!-- alerta-excede_tope-imponible -->
+				<div id="alerta-excede_tope-imponible" title="Tope Imponible"></div>
+				<!-- /alerta-excede_tope-imponible -->
+				</td>
+				<!-- Regularidad de cotizacion historica -->
+				<td class="align-top no-border-bottom">
+					<div class="header">
+						N&uacute;mero de meses que cotiza al a&ntilde;o
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_regularidad_de_cotizacion_historica" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_regularidad_de_cotizacion_historica" class="hide">Este es el n&uacute;mero de meses que usted ha cotizado en el &uacute;ltimo a&ntilde;o. Representa la frecuencia con que usted aporta con nuevos ahorros para su pensi&oacute;n. Un factor importante para el crecimiento de su ahorro previsional es que cotice en forma regular con su AFP.</div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<input id="regularidad" type="text" name="regularidad" class="input-text-pequeno" value="" maxlength="2" />
+					Meses al a&ntilde;o
+					
+				</td>
+				<!-- Fondo Actual -->
+				<td colspan="2" class="no-border-bottom">
+					<div class="header">
+						Fondo actual
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_fondo_actual" class="ayuda"><span>Ayuda</span></a>
+                         <div id="tooltip_fondo_actual" class="hide"> Corresponde al fondo en el que actualmente est&aacute;n los ahorros de su cuenta obligatoria. Sus ahorros pueden estar distribuidos en un m&aacute;ximo de dos fondos. Existen 5 tipos de fondos que se diferencian por el riesgo de cada uno: A (M&aacute;s Riesgoso); B (Riesgoso); C (Intermedio); D (Conservador); E (M&aacute;s Conservador).</div>
+						<!-- /Tooltip -->
+						
+					</div>					
+
+					<table class="tabla-fondos">
+						<thead>
+							<tr>
+							<th>Fondo</th>
+							<th>%</th>
+							<th>Segundo Fondo</th>
+							<th>%</th>
+							<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="no-border-no-padding">
+									<select class="input-select-fondo" name="fondo" id="fondo" onchange="javascript:valida_fondo_edad(this);">
+										<option value=""></option>
+										<option value="A">A</option>
+										<option value="B">B</option>
+										<option value="C">C</option>
+										<option value="D">D</option>
+										<option value="E">E</option>
+									</select>
+								</td>
+								<td class="no-border-no-padding">
+									<input type="text" name="fondo_valor" class="text-input-superpequeno" maxlength="3" id="fondo_valor_uno" value="100" />          
+								</td>
+								<td class="no-border-no-padding">
+									<select class="input-select-fondo" name="fondo_dos" id="fondo_dos" onchange="javascript:valida_fondo_edad(this);">
+										<option value=""></option>
+										<option value="A">A</option>
+										<option value="B">B</option>
+										<option value="C">C</option>
+										<option value="D">D</option>
+										<option value="E">E</option>
+									</select>
+								</td>
+								<td class="no-border-no-padding">
+									<input id="fondo_valor_dos" type="text" name="fondo_valor_dos" maxlength="3" class="text-input-superpequeno" value="0" />
+									<a id="agregar_segundo_fondo" href="javascript:void(0)">Agregar segundo fondo</a>
+								</td>
+								<td class="no-border-no-padding">
+									<a  rel="Si hace clic aqu&iacute; eliminar&aacute; la opci&oacute;n de usar un segundo fondo." id="cancelar_fondo_actual" href="javascript:void(0)" class="cancelar tooltip-cancelar">Cancelar</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					
+					<!-- buttons-container -->
+					<div class="buttons-container">
+						<a  href="javascript:limpiar_datos_personales();"><img alt="Limpiar" src="img/ico/options-login.gif" border="0" />&nbsp;Limpiar</a>
+					</div>
+					<!-- /buttons-container -->
+
+				</td>
+			</tr>
+						<tr>
+                                <td colspan="3" style="text-align:left;">Los campos prellenados muestran informaci&oacute;n administrativa al mes de <b>MAYO DE 2024</b></td>
+                        </tr>
+						</tbody>
+		</table>
+		<!-- /tabla-datos-persona-editar -->
+
+		<!-- tabla-datos-persona -->
+		<table id="tabla-datos-personas" class="tabla-datos-persona cf">
+			<tbody>
+			<tr>
+				<!-- Nombre -->
+				<td class="no-border-left">
+					<span class="header">Nombre</span>
+					<p class="celda_nombre_persona"></p>
+				</td>
+				<!-- Edad -->
+				<td>
+					<span class="header">Edad actual</span>
+					<p id="edadPersona"></p>
+				</td>				
+				<!-- Sexo -->
+				<td>
+					<span class="header">Sexo</span>
+					<p id="sexoPersona"></p>
+				</td>
+				<!-- Ahorro acumulado en cuenta obligatoria -->
+				<td>
+					<div class="header">
+						Ahorro acumulado <br />en cuenta obligatoria1
+						
+						 <!-- Tooltip -->
+						 <a href="#tooltip_saldo_individual" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_saldo_individual" class="hide">Corresponde al monto actual acumulado a trav&eacute;s de sus cotizaciones obligatorias, sin considerar ahorro voluntario. A partir de este saldo, junto a otros factores, se proyecta c&oacute;mo evolucionar&aacute; su cuenta individual hasta jubilarse.</div>
+						<!-- /Tooltip -->
+							
+					</div>
+					<p class="celda_saldo_actual_individual"></p>
+
+				</td>
+			</tr>
+			<tr>
+				<!-- Remuneracion mensual imponible -->
+
+				<td class="no-border-left no-border-bottom">
+					<div class="header">
+						Remuneraci&oacute;n mensual imponible actual
+						 
+						<!-- Tooltip -->
+						 <a href="#tooltip_remuneracion_mensual_imponible_2" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_remuneracion_mensual_imponible_2" class="hide">Las cotizaciones obligatorias son un 10% de su remuneraci&oacute;n mensual imponible actual (con un l&iacute;mite de 66 UF) y son el principal factor con el que los trabajadores construyen su pensi&oacute;n. Para mejorar su pensi&oacute;n puede considerar otros factores como APV individual o colectivo, dep&oacute;sitos convenidos y dep&oacute;sitos en cuenta 2.</div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<p class="celda_remuneracion_mensual_imponible">0 Pesos</p>
+				</td>
+				<!-- Regularidad de cotizacion historica -->
+				<td class="no-border-bottom">
+					<div class="header">
+						Regularidad de cotizaci&oacute;n hist&oacute;rica
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_regularidad_de_cotizacion_historica_2" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_regularidad_de_cotizacion_historica_2" class="hide">Un factor importante para el crecimiento de su ahorro previsional es que cotice en forma regular con su AFP. Este es el n&uacute;mero promedio de meses al ai&ntilde;o en que usted ha realizado hist&oacute;ricamente cotizaciones.</div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<p class="celda_regularidad_cotizacion_historica">12 <span class="explain">Meses al a&ntilde;o</span></p>
+					
+				</td>
+				<!-- Fondo Actual -->
+				<td colspan="2" class="no-border-bottom">
+					<div class="header">
+						Fondo actual
+						
+						<!-- Tooltip -->
+						 <a href="#tooltip_fondo_actual_2" class="ayuda"><span>Ayuda</span></a>
+						 <div id="tooltip_fondo_actual_2" class="hide">Aqu&iacute; se indica el fondo en el que actualmente est&aacute; su ahorro previsional. Sus ahorros pueden estar distribuidos en un m&aacute;ximo de dos fondos. Existen 5 tipos de fondos que se diferencian por el riesgo de cada uno: A (M&aacute;s Riesgoso); B (Riesgoso); C (Intermedio); D (Conservador); E (M&aacute;s Conservador).</div>
+						<!-- /Tooltip -->
+						
+					</div>
+					<p class="celda_fondo_actual">A</p>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<!-- /tabla-datos-persona -->
+		
+		
+		<!-- box -->
+		<div class="box cf">
+			
+			<!-- separador_pension -->
+			<div class="separador_pension">
+				<h2>
+					Pensi&oacute;n mensual deseada
+					<!-- Tooltip -->
+					 <a href="#tooltip_pension_mensual_deseada" class="ayuda"><span>Ayuda</span></a>
+					 <span id="tooltip_pension_mensual_deseada" class="hide">Cu&eacute;ntenos cuanto espera usted recibir mensualmente al momento de su jubilaci&oacute;n. Se sugiere indicar un n&uacute;mero que tenga relaci&oacute;n con la remuneraci&oacute;n mensual imponible que espera tener al momento de jubilarse. El simulador calcular&aacute; cuan probable es que obtenga su pensi&oacute;n mensual deseada.</span>
+					<!-- /Tooltip -->
+					
+				</h2>
+				
+				
+				<!-- fieldset -->
+				<fieldset>
+					<div class="input-container cf">						
+						<input class="input-text" id="pension_mensual_deseada" name="pension_mensual_deseada" type="text" />
+						<select class="input-select" id="pension_mensual_deseada_valor" name="pension_mensual_deseada_valor">
+							<option value="$">Pesos</option>
+							<option value="UF">UF</option>
+						</select>
+						(opcional)
+					</div>
+				</fieldset>
+				<!-- /fieldset -->
+			</div>
+				<div class="separador_pension_ahorro_adi">
+				<h2>
+					Ahorros adicionales
+					<!-- Tooltip -->
+					 <a href="#tooltip_fondo_actual_1" class="ayuda"><span>Ayuda</span></a>
+                                          <span id="tooltip_fondo_actual_1" class="hide">Para cada uno de los tipos de ahorro adicional se indica el saldo actual informado por las AFPs, por lo que si usted cuenta con ahorros voluntarios para pensi&oacute;n en otras instituciones(no AFPs) debe sumar esos saldos a los que aqu&iacute; se reportan.</span>
+                     					<!-- /Tooltip -->
+					
+				</h2>
+				<p>Para cada tipo de ahorro que se detalla, ingrese el monto que actualmente posee y que piensa destinar para su jubilaci&oacute;n</p> 
+				<!-- fieldset -->
+				<fieldset class="saldos-adicionales">
+					
+					<!-- Saldo actual APV -->
+					<div class="input-container cf">
+						<label for="saldo_actual_apv">Ahorro actual APV y APVC</label><!-- Tooltip -->
+						 <a href="#tooltip_saldo_actual_apv" class="ayuda"><span>Ayuda</span></a>
+						 <span id="tooltip_saldo_actual_apv" class="hide">Herramienta complementaria a sus cotizaciones, &uacute;til para aumentar el monto de su pensi&oacute;n. Puede realizar Ahorro Previsional Voluntario (APV) en forma individual o colectivamente en su lugar de trabajo (Ahorro Previsional Colectivo (APVC)).</span>
+						<!-- /Tooltip --><br />
+						<input class="input-text" id="saldo_actual_apv" name="saldo_actual_apv" type="text" />
+
+						
+												
+						<select class="input-select" id="saldo_actual_apv_valor" name="saldo_actual_apv_valor">
+							<option value="$">Pesos</option>
+							<option value="UF">UF</option>
+						</select>						
+					</div>
+					
+					
+					<!-- Saldo actual deposito convenido -->
+					<div class="input-container cf">
+						<label for="saldo_actual_deposito_convenido">Ahorro actual dep&oacute;sito convenido</label><!-- Tooltip -->
+						 <a href="#tooltip_saldo_deposito_convenido" class="ayuda"><span>Ayuda</span></a>
+						 <span id="tooltip_saldo_deposito_convenido" class="hide">Al igual que en APV, este saldo corresponde a ahorros complementarios a sus cotizaciones que ayudan a aumentar el monto de su pensi&oacute;n. Estos fondos no pueden ser retirados antes de la jubilaci&oacute;n.</span>
+						<!-- /Tooltip --><br />
+						<input class="input-text" id="saldo_actual_deposito_convenido" name="saldo_actual_deposito_convenido" type="text" />
+						
+						
+						
+						<select class="input-select"  id="saldo_actual_deposito_convenido_valor" name="saldo_actual_deposito_convenido_valor">
+							<option value="$">Pesos</option>
+							<option value="UF">UF</option>
+						</select>						
+					</div>
+					
+					<!-- Saldo actual cuenta 2 -->
+					<div class="input-container cf">
+						<label for="saldo_actual_cuenta_dos">Ahorro actual cuenta 2</label><!-- Tooltip -->
+						 <a href="#tooltip_saldo_actual_cuenta_dos" class="ayuda"><span>Ayuda</span></a>
+						 <span id="tooltip_saldo_actual_cuenta_dos" class="hide">Otra manera de aumentar el monto de la pensi&oacute;n. Los fondos de esta cuenta pueden ser retirados antes de la jubilaci&oacute;n.</span>
+						<!-- /Tooltip --><br />
+						<input class="input-text" id="saldo_actual_cuenta_dos" name="saldo_actual_cuenta_dos" type="text" />
+						
+						
+						
+						<select id="saldo_actual_cuenta_dos_valor" class="input-select" name="saldo_actual_cuenta_dos_valor">
+							<option value="$">Pesos</option>
+							<option value="UF">UF</option>
+						</select>						
+					</div>
+										
+				</fieldset>
+				<!-- /fieldset -->
+				
+			</div>
+			<!-- /separador_pension -->
+						<div style="float:left;padding-bottom:10px;padding-left:0px;">
+                	<p style="text-align:left;font-size: 11px;">Los campos prellenados muestran informaci&oacute;n administrativa al mes de <b>MAYO DE 2024</b></p>
+                	</div>	
+						
+			
+		</div>
+		<!-- /box -->
+		
+        <div class="box cf">
+			
+						
+			<!-- separador_pension -->
+			<div class="separador_pension_grafico">
+				<h2>
+					Edad de jubilaci&oacute;n
+					<!-- Tooltip -->
+					 <a href="#tooltip_edad_de_jubilacion" class="ayuda"><span>Ayuda</span></a>
+					 <span id="tooltip_edad_de_jubilacion" class="hide">&iquest;A qu&eacute; edad desea retirarse? Si retrasa su edad de jubilaci&oacute;n el monto de su pensi&oacute;n tender&aacute; a aumentar. Pruebe diferentes alternativas para conocer el impacto de la edad de retiro en el monto que recibir&aacute; una vez jubilado.</span>
+					<!-- /Tooltip -->
+					
+				</h2>
+				<p>Si espera jubilarse a una edad distinta a la legal, utilice el bot&oacute;n azul para seleccionar la edad deseada.</p>
+                                 <br />
+				<div class="explain_jubilacion">
+					<p>Le quedan <span id="edad">35</span> a&ntilde;os para jubilarse</p>
+				</div>
+				
+				<!-- slider-jubilacion -->
+				<div id="slider-jubilacion"></div>			
+				<!-- /slider-jubilacion -->				
+				
+				<!-- alerta-edad -->
+				<div id="alerta-edad" class="cf alerta-edad hide">
+					<p>Usted eligi&oacute; una  edad de jubilaci&oacute;n menor a la legal. Existen requisitos especiales para poder acceder a una jubilaci&oacute;n anticipada. Inf&oacute;rmese con su AFP o en <a href="https://www.spensiones.cl" target="_blank" title="Ir al sitio de la Superintendencia de Pensiones">www.spensiones.cl</a></p>
+				</div>
+				<!-- /alerta-edad -->
+				
+			</div>
+			<!-- /separador_pension -->
+			
+		</div>
+		<!-- /box -->
+        
+		
+		<!-- box sliders_estrategia_de_inversion_avanzado -->
+		<div class="cf box" id="box_estrategia_de_inversion_avanzado">
+
+				<h2>
+					Estrategia de inversi&oacute;n
+
+					<!-- Tooltip -->
+					 <a id="link_tooltip_estrategia_de_inversion"  class="ayuda" href="#tooltip_estrategia_de_inversion"><span>Ayuda</span></a>
+					 <span class="hide" id="tooltip_estrategia_de_inversion">Indique en que tipo de fondo (A, B, C, D  o E) espera usted poner sus ahorros para cada tramo de edad. Puede elegir una estrategia personalizada con m&aacute;s de un fondo, o quedarse con la estrategia asignada por Ley (estrategia por defecto).</span>
+					<!-- /Tooltip -->
+				</h2>
+				
+				
+				<!-- volver a la edicion simple -->
+				<a id="volver_simple" href="javascript:void(0)">Volver a la edici&oacute;n simple</a>
+				<!-- /volver a la edicion simple -->
+				
+				<p>Dise&ntilde;e su propio plan, con los botones azules seleccione dos fondos para cada tramo de edad, y con los botones negros elija el porcentaje de su ahorro previsional que ser&aacute; invertido en cada fondo.</p>
+
+				<!-- sliders_estrategia_de_inversion -->
+				<div id="sliders_estrategia_de_inversion_avanzado"></div>
+				<!-- /sliders_estrategia_de_inversion -->
+
+
+		</div>
+		<!-- /box sliders_estrategia_de_inversion_avanzado -->
+		
+		<!-- box box_estrategia_de_inversion_simple -->
+		<div class="cf box" id="box_estrategia_de_inversion_simple">
+			
+			<div id="estrategia_de_inversion_simple" class="estrategia_de_inversion">			
+				<h2><br />
+					Estrategia de inversi&oacute;n
+					
+					<!-- Tooltip -->
+					 <a href="#tooltip_estrategia_de_inversion_2" class="ayuda"><span>Ayuda</span></a>
+					 <span id="tooltip_estrategia_de_inversion_2" class="hide">Indique en que tipo de fondo (A, B, C, D  o E) espera usted poner sus ahorros para cada tramo de edad. Puede elegir mantenerse en su fondo actual, elegir una estrategia predefinida (por defecto, arriesgada o conservadora), o personalizar su decisi&oacute;n seleccionando un fondo para cada tramo de edad.</span>
+					<!-- /Tooltip -->
+					
+				</h2>
+				<p>Seleccione un tipo de estrategia entre las opciones (Por defecto; Arriesgado; Conservador; o Mantener Fondo Actual) o dise&ntilde;e su propio plan moviendo los botones para cada tramo de edad.</p>
+			    <div align="center">
+                                <br />  
+				<ul class="estrategias" >
+                   <li  class="espacio" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+					<li class="pordefecto">
+						<a id="estrategia_inversion_defecto" href="javascript:void(0)">Por defecto
+						
+							 <span class="ayuda"><span>Ayuda</span></span>
+							 <span class="hide">
+								Si el afiliado no elige un fondo la ley establece que se le asigne la estrategia de inversi&oacute;n por defecto. Esta estrategia establece que las mujeres estar&aacute;n en el fondo B hasta los 35 a&ntilde;os; en el fondo C desde los 36 y hasta los 50 a&ntilde;os; y en el fondo D a partir de los 51 a&ntilde;os. Para los hombres se establece el fondo B hasta los 35 a&ntilde;os; el fondo C desde los 36 y hasta los 55 a&ntilde;os; y el fondo D a partir de los 56 a&ntilde;os.
+							</span>
+												
+						</a>
+
+					</li>
+					<li class="arriesgado">						
+						<a id="estrategia_inversion_arriesgado" href="javascript:void(0)">Arriesgado
+							
+							<span class="ayuda"><span>Ayuda</span></span>
+							<span class="hide">
+								La estrategia arriesgada establece que las mujeres estar&aacute;n en el fondo A hasta los 35 a&ntilde;os; en el fondo B desde los 36 y hasta los 50 a&ntilde;os; y en el fondo C a partir de los 51 a&ntilde;os. Para los hombres se establece el fondo A hasta los 35 a&ntilde;os; el fondo B desde los 36 y hasta los 55 a&ntilde;os; y el fondo C a partir de los 56 a&ntilde;os.
+							</span>							
+						
+						</a>						
+					</li>					
+			  <li class="conservador">
+						
+						<a id="estrategia_inversion_conservador" href="javascript:void(0)">Conservador
+						
+							 <span class="ayuda"><span>Ayuda</span></span>
+							 <span class="hide">
+								La estrategia conservadora establece que las mujeres estar&aacute;n en el fondo C hasta los 35 a&ntilde;os; en el fondo D desde los 36 y hasta los 50 a&ntilde;os; y en el fondo E a partir de los 51 a&ntilde;os. Para los hombres se establece el fondo C hasta los 35 a&ntilde;os; el fondo D desde los 36 y hasta los 55 a&ntilde;os; y el fondo E a partir de los 56 a&ntilde;os
+							</span>
+						</a>
+						
+					</li>
+                    
+                    <li class="fondoactual">
+						
+						<a id="estrategia_inversion_fondoactual" href="javascript:fn_fondo_actual();">Fondo Actual
+						
+							 <span class="ayuda"><span>Ayuda</span></span>
+							 <span class="hide">
+                                Si usted tiene actualmente m&aacute;s de un fondo y usa esta opci&oacute;n se elegir&aacute; el fondo donde tiene el mayor porcentaje de sus ahorros previsionales. Usted puede cambiar esta elecci&oacute;n entrando a la edici&oacute;n avanzada.
+							</span>
+						</a>
+						
+					</li>
+			  </ul>
+					</div>			
+				<!-- sliders_estrategia_de_inversion -->
+				<div id="sliders_estrategia_de_inversion_simple" align="center"></div>
+				<!-- /sliders_estrategia_de_inversion -->
+				<div class="estrategia_de_inversion_banner">
+				<table align="left">
+				<tr ><td><h2>Opcional: &iquest;Desea mayor detalle?</h2></td></tr>
+				</table>
+				<table align="center">
+				<tr>
+				<td><p><a id="opcion-avanzada" href="javascript:void(0)" class="button">Edici&oacute;n avanzada</a></p></td>
+				</tr>
+				</table>
+				<br />
+				<p>Desde la edici&oacute;n avanzada, usted podr&aacute; entregar m&aacute;s detalles del dise&ntilde;o de su estrategia de inversi&oacute;n, seleccionando un segundo fondo para balancear el riesgo de sus ahorros.</p>
+			</div>				
+		  </div>
+			
+			
+			
+			
+		</div>
+		<!-- /box box_estrategia_de_inversion_simple -->
+		
+		
+		<!-- box -->
+		<div class="box cf">
+			
+			<!-- box_expectativas -->
+			<div class="box_expectativas cf">			
+				<h2>
+					Expectativas de remuneraci&oacute;n 
+					
+					<!-- Tooltip -->
+					 <a href="#tooltip_expectativas_de_remuneracion" class="ayuda"><span>Ayuda</span></a>
+					 <span id="tooltip_expectativas_de_remuneracion" class="hide">Para la estimaci&oacute;n de su pensi&oacute;n es importante considerar las expectativas que usted tiene en t&eacute;rminos de remuneraci&oacute;n mensual para calcular c&oacute;mo evolucionar&aacute;n sus cotizaciones y el valor de su cuenta individual. Tambi&eacute;n es importante saber si destinar&aacute; parte de su remuneraci&oacute;n como ahorro previsional voluntario, lo cual aumentar&aacute; su pensi&oacute;n final.</span>
+					<!-- /Tooltip -->
+				<!-- alerta-excede_tope-apv -->
+                                <span id="alerta-excede_tope-apv" title="Tope APV"></span>
+                                <!-- /alerta-excede_tope-apv -->						
+					<br />y APV
+				</h2>
+				<p>Remuneraci&oacute;n mensual imponible esperada para cada uno de estos tramos de edad y porcentaje de dicha renta que piensa destinar a ahorro previsional voluntario.</p>			
+			
+				<!-- inputs_expectativas_de_remuneraciony_apv -->
+				<div id="inputs_expectativas_de_remuneraciony_apv"></div>
+				<!-- /inputs_expectativas_de_remuneraciony_apv -->
+			
+              <ul class="opciones-llenar">
+					<li><label><input id="rem_actual" type="checkbox"  onclick="javascript:fn_rem_actual();"/> Llenar con remuneraci&oacute;n  mensual imponible actual</label></li>
+						<!-- Tooltip Promedio de Trabajadores -->
+						<!-- /Tooltip Promedio de Trabajadores  -->
+					<!--</li>-->
+				</ul>
+            
+			</div>
+			<!-- /box_expectativas -->
+			
+			
+			<!-- box_regularidad -->
+			<div class="box_regularidad cf">
+				<h2>
+					N&uacute;mero de meses al a&ntilde;o que espera cotizar
+					
+					<!-- Tooltip -->
+					 <a href="#tooltip_regularidad_cotizaciones_futuras" class="ayuda"><span>Ayuda</span></a>
+					 <span id="tooltip_regularidad_cotizaciones_futuras" class="hide">&iquest;Cu&aacute;ntos meses al a&ntilde;o espera usted cotizar en su AFP? Se&ntilde;ale un n&uacute;mero para cada tramo de edad. Un mayor n&uacute;mero de cotizaciones aumenta el saldo de su cuenta individual.</span>
+					<!-- /Tooltip -->		
+					
+				</h2>
+				
+				<p>Indique cu&aacute;ntos meses al a&ntilde;o espera cotizar en su AFP para cada tramo de edad. Para esto introduzca en cada tramo un m&iacute;nimo de 0 y un m&aacute;ximo de 12.</p>			
+			
+				<!-- inputs_regularidad_cotizaciones_futuras -->
+				<div id="inputs_regularidad_cotizaciones_futuras"></div>
+				<!-- /inputs_regularidad_cotizaciones_futuras -->
+			
+				<ul class="opciones-llenar">
+                   
+					<li><label><input id="cotiza_historica" type="checkbox"  onclick="javascript:fn_cotiza_historica();"/> Llenar con regularidad hist&oacute;rica</label>
+                    </li>
+                    
+						<!-- Tooltip Regularidad promedio de Trabajadores -->
+						<!-- /Tooltip Promedio de Trabajadores  -->
+					
+				</ul>
+			</div>
+			<!-- /box_regularidad -->
+			
+		</div>
+		<!-- /box -->		
+		
+	
+	
+   <!-- datos calculo CNU -->
+    <!-- box -->
+    <div class="box cf">
+		<div class="box_info_benef cf">			
+				<h2>
+					Informaci&oacute;n de beneficiarios 
+					
+					<!-- Tooltip -->
+					 <a class="ayuda" href="#tooltip_info_beneficiarios" title=""><span>Ayuda</span></a>
+					 <span class="hide" id="tooltip_info_beneficiarios">A fin de tener una mejor estimaci&oacute;n de su pensi&oacute;n usted debe proporcionar informaci&oacute;n respecto a los beneficiarios que tiene actualmente. Estos incluyen a c&oacute;nyuges, hijos y padres/madres de filiaci&oacute;n no matrimonial. </span>
+					<!-- /Tooltip -->
+				</h2>
+				<p>Para estimar su pensi&oacute;n es necesario contar con informaci&oacute;n respecto a los beneficiarios que usted tiene actualmente. Estos incluyen a c&oacute;nyuges, hijos y padres/madres de filiaci&oacute;n no matrimonial.</p>
+                <!-- Tooltip -->
+                <!-- /Tooltip -->
+			
+              <table width="90%"  class="tabla-datos-persona cf" >
+               <tr>
+               
+               <td width="100%" class="border-left">&iquest;Tiene actualmente c&oacute;nyuge? &nbsp;&nbsp;&nbsp;
+                     <input id="conyuge_si" type="radio" name="conyuge" value="si" onclick="javascript:act_desact_edad_conyuge();" /> <label for="conyuge_si">Si</label>&nbsp;&nbsp;					
+					<input id="conyuge_no" type="radio" name="conyuge" value="no"  onclick="javascript:act_desact_edad_conyuge();" /> <label for="conyuge_no">No</label>  
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                     Edad c&oacute;nyuge
+                     <input id="edad_conyuge" type="text" name="edad_conyuge" maxlength="3" disabled="disabled" value="" onblur="javascript:ValNumero(this,1);"   />    
+               <br />
+                    N&uacute;mero de hijos que tiene o tuvo con c&oacute;nyuge             
+                   <select id="cantidad_hijos" size="1" onchange="javascript:crear_input_hijos()" >
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    </select>
+                    <div id="hijos"  ><br /></div><br />
+                    <input type="hidden" id="nro_padresmadres_filnomat" name="nro_padresmadres_filnomat" value="0" />
+                    <ul id="icons"><li class="ui-state-default ui-corner-all" title="Agregar"><span class="ui-icon ui-icon-circle-plus" onclick="javascript:agregaPadreMadreFilnomat();"></span></li></ul>Haga clic aqu&iacute; para agregar <span id="leyenda_padre_madre_filnomat">Madres</span> e hijos de filiaci&oacute;n(es) no matrimonial(es) 
+                    <br />
+                    <div id="padre_madre_filiacion_no_matrimonial"></div>
+               </td>
+               </tr>
+              </table>
+			<br />
+			</div>
+            
+    </div>
+    
+    
+    <!-- /datos calculo CNU -->
+    
+    </div>
+    <center><div id="archivo_resultados" style="font-size:12px;">Ay&uacute;denos a mejorar este simulador. Envie sus comentarios y sugerencias <a target="blank" href="https://www.spensiones.cl/apps/consultasWEB/formConsulta.php" style="font-weight:bold;">aqu&iacute;</a></div></center>
+	<!-- /contenedor --> <!-- este div realiza el desplazamiento para dar lugar al grafico--> 
+    
+	<!-- footer_sticky -->
+	<div id="footer_sticky">
+
+<!-- container -->
+		<div class="container">		
+			<table id="tableContainer">
+				<thead>
+					<tr>
+						<th class="bg_pension_mensual">Pensi&oacute;n mensual
+							
+							
+							<!-- Tooltip Pension escenario optimista -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar" class="hide">Este es el monto estimado de su pensi&oacute;n mensual a la edad de retiro, si la rentabilidad de sus ahorros tiene un desempe&ntilde;o promedio.</div>
+							<!-- /Tooltip Pension escenario optimista  -->
+							
+							
+							<br /><strong>esperada</strong> a los <span id="edadFooter"></span> a&ntilde;os</th>
+							
+						<th class="bg_pension_escenario_optimista">
+							Pensi&oacute;n escenario
+																					
+							<!-- Tooltip Pension escenario optimista -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar_1" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar_1" class="hide">Este es el monto estimado de su pensi&oacute;n mensual a la edad de retiro, si la rentabilidad de sus ahorros evoluciona considerablemente bien.</div>
+							<!-- /Tooltip Pension escenario optimista  -->
+							
+							<br /><strong>optimista</strong>
+						</th>
+						
+						<th class="bg_pension_escenario_pesimista">
+							Pensi&oacute;n escenario
+							
+							<!-- Tooltip Pension escenario pesimista -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar_2" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar_2" class="hide">Este es el monto estimado de su pensi&oacute;n mensual a la edad de retiro, si la rentabilidad de sus ahorros evoluciona particularmente mal.</div>
+							<!-- /Tooltip Pension escenario pesimista  -->
+							
+							<br />
+							<strong>pesimista</strong>
+						</th>
+						
+						<th id="pension_mensual_deseada_barra">
+							Pensi&oacute;n mensual
+							
+							<!-- Tooltip Pension deseada -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar_3" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar_3" class="hide">Esta es la pensi&oacute;n mensual que usted indic&oacute; como su pensi&oacute;n deseada al jubilarse</div>
+							<!-- /Tooltip Pensi&oacute;n deseada  -->
+							
+							 <br /><strong>deseada</strong>							
+						</th>
+						
+						<th id="probabilidad_pension_deseada_barra">
+							Probabilidad de
+							
+							<!-- Tooltip Pension deseada -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar_4" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar_4" class="hide">Esta es la probabilidad de que, llegada la edad de jubilaci&oacute;n que usted eligi&oacute;, su pensi&oacute;n mensual sea a lo menos igual a la pensi&oacute;n que fue indicada por usted como su pensi&oacute;n deseada.</div>
+							<!-- /Tooltip Pensi&oacute;n deseada  -->
+							
+							 <br /> alcanzar pensi&oacute;n <strong>deseada</strong>							
+						</th>						
+						
+						<th>
+							<!-- Ver detalle -->
+							<a id="detalle_footer" href="javascript:void(0)" class="detalle">Ver detalle</a>
+							
+							<!-- Cerrar -->
+							<a id="cerrar_detalle_footer" href="javascript:void(0)" class="hide cerrar">Cerrar</a>	
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="bg_pension_mensual pension_mensual">$<span>0</span></td>
+						<td class="bg_pension_escenario_optimista pension_escenario_optimista">$<span>0</span></td>
+						<td class="bg_pension_escenario_pesimista pension_escenario_pesimista">$<span>0</span></td>
+						<td class="pension_mensual_esperada">$<span>0</span></td>
+						<td class="detalle_footer"><span class="porcentaje">0%</span></td>
+						<td><a id="actualizar" href="javascript:void(0)" title="Calcular">Calcular</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- /container -->		
+       
+		<!-- containerEspecial -->
+		<div class="containerEspecial" style="display:none;">		
+			<table>
+				<thead>
+					<tr>
+						<th class="bg_pension_escenario_pesimista" colspan="2">Pensi&oacute;n mensual
+							<!-- Tooltip Pension escenario optimista -->
+							 <a href="#tooltip_footer_probabilidad_alcanzar_5" class="ayuda"><span>Ayuda</span></a>
+							 <div id="tooltip_footer_probabilidad_alcanzar_5" class="hide">Este es el monto estimado de su pensi&oacute;n mensual a la edad de retiro, si la rentabilidad de sus ahorros tiene un desempe&ntilde;o promedio.</div>
+							<!-- /Tooltip Pension escenario optimista  -->
+							
+							
+							<br /><strong>esperada</strong> a los <span id="edadFooterEspecial"></span> a&ntilde;os
+                        </th>
+							
+						
+						<th colspan="4">
+                        	<a id="actualizarEspecial" href="javascript:void(0)" title="Calcular">Calcular</a>
+                            <!-- Ver detalle -->
+							<a id="detalle_footerEspecial" href="javascript:void(0)" class="detalle">Ver detalle</a>
+                            <!-- Cerrar -->
+							<a id="cerrar_detalle_footerEspecial" href="javascript:void(0)" class="hide cerrar">Cerrar</a>
+                        </th>
+					</tr>
+				</thead>
+                <tbody>
+                	<tr>
+                    	<td class="bg_pension_escenario_pesimista pension_mensual" colspan="2">$<span>0</span></td>
+                        <td colspan="4" align="center">&nbsp;</td>
+                    </tr>
+                </tbody>
+			</table>
+		</div>
+		<!-- /containerEspecial -->
+		
+		<!-- detalle_pension -->
+		<div id="detalle_pension" class="hide cf">
+			
+			<!--[if IE 6]>
+				<iframe id="ie6cover" src="" frameborder="0"></iframe>
+			<![endif]-->
+			
+			<!-- explicacion -->
+			<ul class="explicacion">
+				<li><span class="box_pension_mensual_esperada">-</span> Pensi&oacute;n esperada</li>
+				<li><span class="box_pension_escenario_optimista">-</span> Pensi&oacute;n escenario optimista</li>
+				<li><span class="box_pension_escenario_pesimista">-</span> Pensi&oacute;n escenario pesimista</li>
+			</ul>
+			<!-- /explicacion -->
+			
+			<!-- grafico -->
+			<div class="grafico">
+				<img id="grafico" src="img/foto/grafico-no-completo.png" alt="" />
+				
+				<div id="controles_2_barras" class="hide">
+					<div class="edad_legal"><span></span> a&ntilde;os edad legal de jubilaci&oacute;n</div>
+					<div class="edad_pronosticada"><span></span> a&ntilde;os</div>
+				</div>
+				
+				<div id="controles_3_barras" class="hide">
+					<div class="edad"><span></span> a&ntilde;os</div>
+					<div class="edad_legal"><span></span> a&ntilde;os edad legal de jubilaci&oacute;n</div>
+					<div class="edad_pronosticada"><span></span> ai&ntilde;os</div>
+				</div>
+				
+			</div>
+			<!-- /grafico -->
+			
+			<!-- explicacion_grafico -->
+			<div class="explicacion_grafico">
+                        <br />
+			<h2>&iquest;Qu&eacute; significa esto?</h2>
+				<p id="verDetalleEspecial">Esta figura muestra su pensi&oacute;n esperada para la edad de jubilaci&oacute;n deseada y si retrasa la jubilaci&oacute;n tres a&ntilde;os. Adem&aacute;s se indica el valor de su pensi&oacute;n considerando un escenario optimista y otro pesimista. Su pensi&oacute;n esperada se encuentra entre dichos valores.<br />La pensi&oacute;n es l&iacute;quida y se calcula como una Renta Vitalicia que considera una estimaci&oacute;n de largo plazo de la tasa de inter&eacute;s asociada. M&aacute;s detalles en <a href="doc/supuestos_simulador.pdf" target="_blank">supuestos simulador</a>.</p>
+				
+				<!-- Recordar simulacion -->
+				<!-- Recordar simulacion -->
+				<div class="footer_detalle_pension">
+				<p>Para mejorar el monto de su pensi&oacute;n usted puede:<br /></p>
+				
+				<ul>
+					<li class="retrasar"><a href="javascript:void(0)">Retrasar edad de jubilaci&oacute;n</a></li>
+					<li class="aumentar_regularidad"><a href="javascript:void(0)">Aumentar regularidad de cotizaciones</a></li>
+					<li class="aumentar_monto"><a href="javascript:void(0)">Aumentar monto de APV</a></li>
+				</ul>
+				 
+				</div>
+				<p><a href="/portal/institucional/594/w3-propertyvalue-9774.html" target="_blank">Inf&oacute;rmese sobre el Pilar Solidario</a></p>
+				<div class="alerta_proyeccion">
+					<p>Este resultado es una simulaci&oacute;n y no constituye un monto garantizado por la Superintendencia de Pensiones</p>
+				</div>		
+				<br />
+			</div>
+			<!-- /explicacion_grafico -->
+			
+			
+			<!-- footer_detalle_pension -->
+			<!-- footer_detalle_pension -->
+		</div>		
+	</div>
+	<!-- /footer_sticky -->
+	
+	
+	<!-- Mensaje de ayuda -->
+	<div id="mensaje-entrada" title="Mensaje informativo">
+		<p>Si necesita ayuda utilice los &iacute;conos <img src="img/ico/tooltip.gif" alt="Icono de ayuda" /></p>
+		<p>Para visualizar todas las secciones del simulador debe utilizar la barra de desplazamiento (scroll) ubicada en la parte derecha de su pantalla.</p>
+                <p>A continuaci&oacute;n acceder&aacute; a una versi&oacute;n del simulador donde su informaci&oacute;n actual ser&aacute; prellenada con datos administrativos.</p><p>Estos datos son entregados por cada AFP y corresponden a los reportados por su AFP para el mes de <b>MAYO DE 2024</b>.</p><p>Si existen datos err&oacute;neos o campos que no est&aacute;n siendo completados por favor dir&iacute;jase a su AFP a rectificar sus datos y realice los cambios correspondientes antes de realizar la simulaci&oacute;n.</p>
+        	</div>
+	<!-- Mensaje de ayuda -->
+	<div id="alerta-primer-calculo" title="Mensaje informativo">
+		<p>Para ver m&aacute;s informaci&oacute;n sobre los resultados use el bot&oacute;n &quot;Ver Detalle&quot;</p>
+	</div>
+	
+	<script type="text/javascript">
+		$(function() {
+			$( "#dialog:ui-dialog" ).dialog( "destroy" );
+			$( "#mensaje-entrada" ).dialog({
+				modal: true,
+				stack: true,
+				title: false,
+				buttons: {
+					Cerrar: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
+			$( "#alerta-excede_tope-imponible" ).dialog({
+				autoOpen: false,
+				modal: true,
+				stack: true,
+				title: false,
+				buttons: {
+					Cerrar: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
+			$( "#alerta-excede_tope-apv" ).dialog({
+				autoOpen: false,
+				modal: true,
+				stack: true,
+				title: false,
+				buttons: {
+					Cerrar: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
+			$( "#alerta-primer-calculo" ).dialog({
+				autoOpen: false,
+				modal: true,
+				stack: true,
+				title: false,
+				buttons: {
+					Cerrar: function() {
+						$( this ).dialog( "close" );
+					}
+				}
+			});
+		});
+	</script>
+	<!-- /Mensaje de ayuda -->
+	
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67460401-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
