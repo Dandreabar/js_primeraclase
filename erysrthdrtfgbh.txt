@@ -1,0 +1,15 @@
+delete FRom vina where id_vina=3243
+
+
+update evento_participante
+set id_vina=4046
+where id_vina=3243
+
+
+tGM2jFSPlCGwZtOFfoUchh1GPVpVTcQqmDolfVgSAnY=
+
+tGM2jFSPlCGwZtOFfoUchh1GPVpVTcQqmDolfVgSAnY=
+
+K6ilXNq6besl/+do2oc21A==
+
+PkB3FoJGJqQetpQ5QpdjwQ==

@@ -1,0 +1,22 @@
+[
+    {
+      "id": 1,
+      "titulo": "edadTopejmujer",
+      "valor": 60
+    },
+    {
+        "id": 2,
+        "titulo": "edadTopejhombre",
+        "valor": 65
+      },
+      {
+        "id": 3,
+        "titulo": "edadPromediovidaM",
+        "valor": 83
+      },
+      {
+        "id": 4,
+        "titulo": "edadPromediovidaH",
+        "valor": 78
+      } 
+  ]
